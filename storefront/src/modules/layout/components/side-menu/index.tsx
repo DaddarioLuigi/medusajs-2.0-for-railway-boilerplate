@@ -12,6 +12,8 @@ import { HttpTypes } from "@medusajs/types"
 const SideMenuItems = {
   Home: "/",
   Store: "/store",
+  "La Nostra Storia": "/storia",
+  Contatti: "/contatti",
   Search: "/search",
   Account: "/account",
   Cart: "/cart",
@@ -91,7 +93,7 @@ const SideMenu = ({ regions }: { regions: HttpTypes.StoreRegion[] | null }) => {
                         />
                       </div>
                       <Text className="flex justify-between txt-compact-small">
-                        © {new Date().getFullYear()} Medusa Store. All rights
+                        © {new Date().getFullYear()} Il Tuo Store. All rights
                         reserved.
                       </Text>
                     </div>
