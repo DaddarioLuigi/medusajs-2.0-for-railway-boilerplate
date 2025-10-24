@@ -8,7 +8,7 @@ const X: React.FC<IconProps> = ({
   ...attributes
 }) => {
   return (
-    <svg
+    <svg 
       width={size}
       height={size}
       viewBox="0 0 20 20"
