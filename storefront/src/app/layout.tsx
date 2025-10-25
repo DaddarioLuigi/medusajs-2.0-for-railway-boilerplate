@@ -11,6 +11,12 @@ export const metadata: Metadata = {
 export default function RootLayout(props: { children: React.ReactNode }) {
   return (
     <html lang="it" data-mode="light">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <meta name="theme-color" content="#8B4513" />
+        <meta name="description" content="Bar Europa - Pasticceria, Bar & Gelateria dal 1966. Tradizione italiana nel cuore di Trani." />
+      </head>
       <body className="font-sans antialiased bg-background text-foreground">
         <main className="relative">{props.children}</main>
       </body>

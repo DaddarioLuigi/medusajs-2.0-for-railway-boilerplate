@@ -3,40 +3,48 @@
 @import "tailwindcss/utilities";
 
 :root {
-  /* Updated color palette for Bar Europa Italian café theme */
-  --background: oklch(0.97 0.01 45); /* Warm cream background */
-  --foreground: oklch(0.18 0.02 30); /* Rich café brown text */
-  --card: oklch(0.99 0.005 45); /* Slightly warmer white for cards */
-  --card-foreground: oklch(0.18 0.02 30);
-  --popover: oklch(0.99 0.005 45);
-  --popover-foreground: oklch(0.18 0.02 30);
-  --primary: oklch(0.25 0.04 30); /* Deep café brown primary */
-  --primary-foreground: oklch(0.97 0.01 45); /* Cream text on brown */
-  --secondary: oklch(0.92 0.015 45); /* Light cream secondary */
-  --secondary-foreground: oklch(0.25 0.04 30);
-  --muted: oklch(0.9 0.02 45); /* Muted cream */
-  --muted-foreground: oklch(0.45 0.02 30); /* Medium brown for muted text */
-  --accent: oklch(0.65 0.15 45); /* Warm gold accent */
-  --accent-foreground: oklch(0.97 0.01 45);
+  /* Enhanced warm coffee shop palette for Bar Europa */
+  --background: oklch(0.98 0.008 35); /* Warm ivory background */
+  --foreground: oklch(0.15 0.03 25); /* Rich espresso brown text */
+  --card: oklch(0.995 0.005 35); /* Cream white for cards */
+  --card-foreground: oklch(0.15 0.03 25);
+  --popover: oklch(0.995 0.005 35);
+  --popover-foreground: oklch(0.15 0.03 25);
+  --primary: oklch(0.22 0.05 25); /* Deep espresso brown primary */
+  --primary-foreground: oklch(0.98 0.008 35); /* Ivory text on brown */
+  --secondary: oklch(0.94 0.02 35); /* Warm cream secondary */
+  --secondary-foreground: oklch(0.22 0.05 25);
+  --muted: oklch(0.92 0.015 35); /* Soft cream */
+  --muted-foreground: oklch(0.4 0.03 25); /* Medium coffee brown for muted text */
+  --accent: oklch(0.7 0.18 40); /* Warm caramel accent */
+  --accent-foreground: oklch(0.98 0.008 35);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.577 0.245 27.325);
-  --border: oklch(0.88 0.02 45); /* Warm border */
-  --input: oklch(0.95 0.01 45); /* Light cream input */
-  --ring: oklch(0.65 0.15 45); /* Gold focus ring */
+  --border: oklch(0.9 0.015 35); /* Warm coffee border */
+  --input: oklch(0.96 0.01 35); /* Light cream input */
+  --ring: oklch(0.7 0.18 40); /* Caramel focus ring */
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
-  --radius: 0.5rem;
-  --sidebar: oklch(0.97 0.01 45);
-  --sidebar-foreground: oklch(0.18 0.02 30);
-  --sidebar-primary: oklch(0.25 0.04 30);
-  --sidebar-primary-foreground: oklch(0.97 0.01 45);
-  --sidebar-accent: oklch(0.92 0.015 45);
-  --sidebar-accent-foreground: oklch(0.25 0.04 30);
-  --sidebar-border: oklch(0.88 0.02 45);
-  --sidebar-ring: oklch(0.65 0.15 45);
+  --radius: 0.75rem; /* Slightly more rounded for warmth */
+  --sidebar: oklch(0.98 0.008 35);
+  --sidebar-foreground: oklch(0.15 0.03 25);
+  --sidebar-primary: oklch(0.22 0.05 25);
+  --sidebar-primary-foreground: oklch(0.98 0.008 35);
+  --sidebar-accent: oklch(0.94 0.02 35);
+  --sidebar-accent-foreground: oklch(0.22 0.05 25);
+  --sidebar-border: oklch(0.9 0.015 35);
+  --sidebar-ring: oklch(0.7 0.18 40);
+  
+  /* Coffee shop specific colors */
+  --coffee-light: oklch(0.85 0.05 35); /* Light coffee */
+  --coffee-medium: oklch(0.6 0.08 30); /* Medium coffee */
+  --coffee-dark: oklch(0.3 0.06 25); /* Dark coffee */
+  --cream: oklch(0.95 0.02 40); /* Cream color */
+  --caramel: oklch(0.75 0.15 45); /* Caramel */
+  --golden: oklch(0.8 0.12 50); /* Golden accent */
 }
 
 .dark {
@@ -206,5 +214,115 @@
 
   .text-3xl-semi {
     @apply text-[32px] leading-[44px] font-semibold;
+  }
+
+  /* Coffee shop specific utility classes */
+  .coffee-gradient {
+    background: linear-gradient(135deg, oklch(0.95 0.02 40) 0%, oklch(0.85 0.05 35) 50%, oklch(0.7 0.08 30) 100%);
+  }
+
+  .coffee-shadow {
+    box-shadow: 0 10px 25px -5px oklch(0.3 0.06 25 / 0.1), 0 4px 6px -2px oklch(0.3 0.06 25 / 0.05);
+  }
+
+  .coffee-border {
+    border: 1px solid oklch(0.9 0.015 35);
+  }
+
+  .coffee-hover {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .coffee-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 40px -10px oklch(0.3 0.06 25 / 0.15);
+  }
+
+  .coffee-text-gradient {
+    background: linear-gradient(135deg, oklch(0.22 0.05 25) 0%, oklch(0.7 0.18 40) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .coffee-pattern {
+    background-image: 
+      radial-gradient(circle at 25% 25%, oklch(0.95 0.02 40 / 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 75% 75%, oklch(0.85 0.05 35 / 0.1) 0%, transparent 50%);
+  }
+
+  /* Coffee shop animations */
+  @keyframes coffee-steam {
+    0% { opacity: 0; transform: translateY(0) scale(0.8); }
+    50% { opacity: 1; transform: translateY(-10px) scale(1); }
+    100% { opacity: 0; transform: translateY(-20px) scale(1.2); }
+  }
+
+  @keyframes coffee-glow {
+    0%, 100% { box-shadow: 0 0 20px oklch(0.7 0.18 40 / 0.3); }
+    50% { box-shadow: 0 0 30px oklch(0.7 0.18 40 / 0.5); }
+  }
+
+  @keyframes coffee-float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .coffee-steam {
+    animation: coffee-steam 3s ease-in-out infinite;
+  }
+
+  .coffee-glow {
+    animation: coffee-glow 2s ease-in-out infinite;
+  }
+
+  .coffee-float {
+    animation: coffee-float 4s ease-in-out infinite;
+  }
+
+  /* Coffee shop specific hover effects */
+  .coffee-card {
+    @apply bg-card border coffee-border rounded-2xl overflow-hidden coffee-shadow;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .coffee-card:hover {
+    @apply transform -translate-y-2;
+    box-shadow: 0 25px 50px -12px oklch(0.3 0.06 25 / 0.25);
+  }
+
+  /* Coffee shop button styles */
+  .coffee-btn-primary {
+    @apply bg-accent hover:bg-accent/90 text-accent-foreground px-8 py-4 rounded-full font-semibold coffee-shadow coffee-hover;
+    background: linear-gradient(135deg, oklch(0.7 0.18 40) 0%, oklch(0.75 0.15 45) 100%);
+  }
+
+  .coffee-btn-secondary {
+    @apply border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground px-8 py-4 rounded-full font-semibold coffee-hover;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Coffee shop text effects */
+  .coffee-title {
+    @apply font-display font-bold coffee-text-gradient;
+    text-shadow: 0 2px 4px oklch(0.3 0.06 25 / 0.1);
+  }
+
+  .coffee-subtitle {
+    @apply text-muted-foreground leading-relaxed;
+    font-weight: 400;
+  }
+
+  /* Coffee shop decorative elements */
+  .coffee-divider {
+    @apply w-full h-px bg-gradient-to-r from-transparent via-accent to-transparent;
+  }
+
+  .coffee-dot {
+    @apply w-2 h-2 bg-accent rounded-full;
+  }
+
+  .coffee-line {
+    @apply w-8 h-0.5 bg-gradient-to-r from-accent to-caramel rounded-full;
   }
 }
