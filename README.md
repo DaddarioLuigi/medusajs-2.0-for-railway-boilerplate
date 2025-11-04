@@ -41,6 +41,95 @@ This boilerplate is a monorepo consisting of the officially released MedusaJS 2.
 
 Updated: to `version 2.10.2` 🥳
 
+## How the Backend Works
+
+The MedusaJS backend is a **headless e-commerce backend** that provides a complete REST API for managing your online store. Once deployed, it exposes a set of APIs that any frontend application can consume to build a fully functional e-commerce experience.
+
+### Backend Features
+
+The backend provides APIs for:
+
+- **Product Management**: Fetch products, variants, collections, and categories
+- **Shopping Cart**: Create, update, and manage shopping carts
+- **Customer Authentication**: User registration, login, and session management
+- **Order Processing**: Complete checkout flow, order history, and order tracking
+- **Payment Processing**: Integration with payment providers (Stripe, PayPal, etc.)
+- **Shipping**: Calculate shipping costs and manage shipping methods
+- **Admin Dashboard**: Built-in admin panel at `/app` for managing products, orders, and customers
+- **Search**: Product search powered by MeiliSearch
+- **File Storage**: Media file management with MinIO or local storage
+
+### Using the Backend with Any Frontend
+
+This backend is **frontend-agnostic**, meaning you can use it with:
+
+- **Next.js** (included in this boilerplate)
+- **React** (any framework)
+- **Vue.js**
+- **Angular**
+- **Mobile apps** (React Native, Flutter, etc.)
+- **Any technology** that can make HTTP requests
+
+### API Endpoints
+
+The backend exposes REST APIs at:
+
+- **Store API** (`/store/*`): Public endpoints for customers to browse products, manage carts, and complete purchases
+- **Admin API** (`/admin/*`): Protected endpoints for managing products, orders, and store settings
+- **Auth API** (`/auth/*`): Authentication endpoints for customer and admin login
+
+### Example: Frontend Integration
+
+Any frontend can interact with the backend by making HTTP requests:
+
+```javascript
+// Fetch products
+const products = await fetch('https://your-backend-url.railway.app/store/products')
+
+// Add to cart
+await fetch('https://your-backend-url.railway.app/store/carts/cart-id/line-items', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    variant_id: 'variant_123',
+    quantity: 1
+  })
+})
+
+// Complete checkout
+await fetch('https://your-backend-url.railway.app/store/carts/cart-id/payment-sessions', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    provider_id: 'stripe'
+  })
+})
+```
+
+### MedusaJS JavaScript SDK
+
+For easier integration, you can use the official MedusaJS JavaScript SDK:
+
+```javascript
+import Medusa from "@medusajs/js-sdk"
+
+const medusa = new Medusa({
+  baseUrl: "https://your-backend-url.railway.app",
+  publishableKey: "your_publishable_key"
+})
+
+// Fetch products
+const { products } = await medusa.store.product.list()
+
+// Add to cart
+await medusa.store.cart.lineItems.create(cartId, {
+  variant_id: "variant_123",
+  quantity: 1
+})
+```
+
+The backend is fully functional even without the included storefront - you can build your own frontend from scratch using the APIs!
+
 ## Deploy with no manual setup in minutes
 [![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/gkU-27?referralCode=-Yg50p)
 
@@ -49,7 +138,7 @@ Updated: to `version 2.10.2` 🥳
 
 - MinIO file storage: Replaces local file storage with MinIO cloud storage, automatically creating a 'medusa-media' bucket for your media files. [README](backend/src/modules/minio-file/README.md)
 - Resend email integration [Watch setup video](https://youtu.be/pbdZm26YDpE?si=LQTHWeZMLD4w3Ahw) - special thanks to [aleciavogel](https://github.com/aleciavogel) for Resend notification service, and react-email implementation! [README](backend/src/modules/email-notifications/README.md)
-- Stripe payment service: [Watch setup video](https://youtu.be/dcSOpIzc1Og)
+- Stripe payment service: Fully configured plugin ready to use. To activate, add `STRIPE_API_KEY` and `STRIPE_WEBHOOK_SECRET` environment variables. [Watch setup video](https://youtu.be/dcSOpIzc1Og)
 - Meilisearch integration by [Rokmohar](https://github.com/rokmohar/medusa-plugin-meilisearch): Adds powerful product search capabilities to your store. When deployed on Railway using the template, MeiliSearch is automatically configured. (For non-railway'ers: [Watch setup video](https://youtu.be/hrXcc5MjApI))
 
 # local setup
