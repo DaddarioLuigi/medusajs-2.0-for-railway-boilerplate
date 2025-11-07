@@ -187,7 +187,7 @@ Video instructions: https://youtu.be/PPxenu7IjGM
 <p align="center">
   <a href="https://funkyton.com/">
     <div style="text-align: center;">
-      A template by,
+      A template by(),
       <br>
       <picture>
         <img alt="FUNKYTON logo" src="https://res-5.cloudinary.com/hczpmiapo/image/upload/q_auto/v1/ghost-blog-images/funkyton-logo.png" width=200>
