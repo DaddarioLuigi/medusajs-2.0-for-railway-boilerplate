@@ -11,13 +11,13 @@ interface OrderPlacedPreviewProps {
 }
 
 export interface OrderPlacedTemplateProps {
-  order: OrderDTO & { display_id: string; summary: { raw_current_order_total: { value: number } } }
-  shippingAddress: OrderAddressDTO
+  order: OrderDTO & { display_id?: string; summary?: { raw_current_order_total?: { value: number } } }
+  shippingAddress: OrderAddressDTO | null
   preview?: string
 }
 
 export const isOrderPlacedTemplateData = (data: any): data is OrderPlacedTemplateProps =>
-  typeof data.order === 'object' && typeof data.shippingAddress === 'object'
+  typeof data.order === 'object'
 
 export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
   PreviewProps: OrderPlacedPreviewProps
@@ -29,9 +29,11 @@ export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
           Order Confirmation
         </Text>
 
-        <Text style={{ margin: '0 0 15px' }}>
-          Dear {shippingAddress.first_name} {shippingAddress.last_name},
-        </Text>
+        {shippingAddress && (
+          <Text style={{ margin: '0 0 15px' }}>
+            Dear {shippingAddress.first_name} {shippingAddress.last_name},
+          </Text>
+        )}
 
         <Text style={{ margin: '0 0 30px' }}>
           Thank you for your recent order! Here are your order details:
@@ -41,31 +43,35 @@ export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
           Order Summary
         </Text>
         <Text style={{ margin: '0 0 5px' }}>
-          Order ID: {order.display_id}
+          Order ID: {order.display_id || order.id}
         </Text>
         <Text style={{ margin: '0 0 5px' }}>
           Order Date: {new Date(order.created_at).toLocaleDateString()}
         </Text>
         <Text style={{ margin: '0 0 20px' }}>
-          Total: {order.summary.raw_current_order_total.value} {order.currency_code}
+          Total: {order.summary?.raw_current_order_total?.value || order.total || 0} {order.currency_code}
         </Text>
 
-        <Hr style={{ margin: '20px 0' }} />
+        {shippingAddress && (
+          <>
+            <Hr style={{ margin: '20px 0' }} />
 
-        <Text style={{ fontSize: '18px', fontWeight: 'bold', margin: '0 0 10px' }}>
-          Shipping Address
-        </Text>
-        <Text style={{ margin: '0 0 5px' }}>
-          {shippingAddress.address_1}
-        </Text>
-        <Text style={{ margin: '0 0 5px' }}>
-          {shippingAddress.city}, {shippingAddress.province} {shippingAddress.postal_code}
-        </Text>
-        <Text style={{ margin: '0 0 20px' }}>
-          {shippingAddress.country_code}
-        </Text>
+            <Text style={{ fontSize: '18px', fontWeight: 'bold', margin: '0 0 10px' }}>
+              Shipping Address
+            </Text>
+            <Text style={{ margin: '0 0 5px' }}>
+              {shippingAddress.address_1}
+            </Text>
+            <Text style={{ margin: '0 0 5px' }}>
+              {shippingAddress.city}{shippingAddress.province ? `, ${shippingAddress.province}` : ''} {shippingAddress.postal_code}
+            </Text>
+            <Text style={{ margin: '0 0 20px' }}>
+              {shippingAddress.country_code}
+            </Text>
 
-        <Hr style={{ margin: '20px 0' }} />
+            <Hr style={{ margin: '20px 0' }} />
+          </>
+        )}
 
         <Text style={{ fontSize: '18px', fontWeight: 'bold', margin: '0 0 15px' }}>
           Order Items

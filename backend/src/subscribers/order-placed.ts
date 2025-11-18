@@ -1,6 +1,6 @@
 import { Modules } from '@medusajs/framework/utils'
 import { INotificationModuleService, IOrderModuleService } from '@medusajs/framework/types'
-import { SubscriberArgs, SubscriberConfig } from '@medusajs/medusa'
+import { SubscriberArgs, SubscriberConfig } from '@medusajs/framework'
 import { EmailTemplates } from '../modules/email-notifications/templates'
 
 export default async function orderPlacedHandler({
@@ -10,10 +10,29 @@ export default async function orderPlacedHandler({
   const notificationModuleService: INotificationModuleService = container.resolve(Modules.NOTIFICATION)
   const orderModuleService: IOrderModuleService = container.resolve(Modules.ORDER)
   
-  const order = await orderModuleService.retrieveOrder(data.id, { relations: ['items', 'summary', 'shipping_address'] })
-  const shippingAddress = await (orderModuleService as any).orderAddressService_.retrieve(order.shipping_address.id)
-
   try {
+    const order = await orderModuleService.retrieveOrder(data.id, { 
+      relations: ['items', 'summary', 'shipping_address'] 
+    })
+
+    if (!order.email) {
+      console.error('Order has no email address, cannot send confirmation')
+      return
+    }
+
+    let shippingAddress = null
+    if (order.shipping_address?.id) {
+      try {
+        shippingAddress = await (orderModuleService as any).orderAddressService_.retrieve(order.shipping_address.id)
+      } catch (error) {
+        console.warn('Could not retrieve shipping address:', error)
+        // Use the shipping_address from order if available
+        shippingAddress = order.shipping_address
+      }
+    } else if (order.shipping_address) {
+      shippingAddress = order.shipping_address
+    }
+
     await notificationModuleService.createNotifications({
       to: order.email,
       channel: 'email',
