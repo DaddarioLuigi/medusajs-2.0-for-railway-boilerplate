@@ -3,17 +3,17 @@ import { Modules } from "@medusajs/framework/utils"
 import { IUserModuleService } from "@medusajs/framework/types"
 
 /**
- * Endpoint API per aggiornare l'email e/o la password dell'utente admin
+ * Endpoint pubblico temporaneo per aggiornare l'email e password admin
  * 
- * POST /admin/custom/update-admin-email
+ * POST /store/custom/update-admin-email
  * Body: { 
  *   "email": "nuova-email@example.com",
- *   "password": "nuova-password" (opzionale),
- *   "secret": "chiave-segreta" (richiesta per sicurezza temporanea)
+ *   "password": "nuova-password",
+ *   "secret": "chiave-segreta" (richiesta per sicurezza)
  * }
  * 
- * NOTA TEMPORANEA: Autenticazione disabilitata, richiede solo secret key
- * TODO: Riabilitare autenticazione dopo l'uso
+ * NOTA: Questo endpoint è temporaneo e dovrebbe essere rimosso dopo l'uso.
+ * La chiave segreta è impostata nella variabile d'ambiente ADMIN_UPDATE_SECRET
  */
 export async function POST(
   req: MedusaRequest,
@@ -22,11 +22,11 @@ export async function POST(
   try {
     const { email, password, secret } = req.body
 
-    // Verifica la chiave segreta (temporanea, rimuovere dopo l'uso)
+    // Verifica la chiave segreta
     const requiredSecret = process.env.ADMIN_UPDATE_SECRET || "temporary-secret-key-change-me"
     if (!secret || secret !== requiredSecret) {
       res.status(401).json({
-        error: 'Chiave segreta non valida. Fornisci "secret": "temporary-secret-key-change-me" nel body.'
+        error: 'Chiave segreta non valida'
       })
       return
     }
@@ -34,6 +34,13 @@ export async function POST(
     if (!email || typeof email !== 'string' || !email.includes('@')) {
       res.status(400).json({
         error: 'Email non valida. Fornisci un\'email valida nel body della richiesta.'
+      })
+      return
+    }
+
+    if (!password || typeof password !== 'string' || password.length < 8) {
+      res.status(400).json({
+        error: 'Password non valida. Deve essere una stringa di almeno 8 caratteri.'
       })
       return
     }
@@ -60,18 +67,21 @@ export async function POST(
       email: email
     })
 
-    // Se è fornita una password, aggiorna anche quella
-    // In Medusa 2.0, dobbiamo usare il metodo setPassword che gestisce l'hashing
-    if (password && typeof password === 'string' && password.length > 0) {
-      // Il metodo setPassword hasha automaticamente la password
+    // Aggiorna la password
+    // In Medusa 2.0, proviamo diversi metodi per aggiornare la password
+    try {
+      // Metodo 1: setPassword se disponibile
       if (typeof (userModuleService as any).setPassword === 'function') {
         await (userModuleService as any).setPassword(adminUser.id, password)
       } else {
-        // Fallback: prova a passare la password direttamente (il servizio dovrebbe hasharla)
+        // Metodo 2: updateUsers con password_hash (il servizio dovrebbe hasharla)
         await userModuleService.updateUsers(adminUser.id, {
           password_hash: password
         } as any)
       }
+    } catch (passwordError) {
+      console.error('Errore durante l\'aggiornamento della password:', passwordError)
+      // Continuiamo comunque, l'email è stata aggiornata
     }
 
     const response: any = {
