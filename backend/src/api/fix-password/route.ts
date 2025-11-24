@@ -61,12 +61,23 @@ export async function POST(
     const saltRounds = 10
     const hashedPassword = await bcrypt.hash(password, saltRounds)
     
-    // Aggiorna la password hashata
-    // Prova diversi modi per assicurarsi che venga salvata
-    await userModuleService.updateUsers([{
-      id: adminUser.id,
-      password_hash: hashedPassword
-    }] as any)
+    // Prova a usare upsertUsers invece di updateUsers
+    // Aggiorna sia email che password insieme per assicurarsi che venga salvato
+    try {
+      await (userModuleService as any).upsertUsers([{
+        id: adminUser.id,
+        email: adminUser.email,
+        password_hash: hashedPassword
+      }])
+    } catch (upsertError) {
+      // Se upsertUsers non funziona, prova updateUsers con tutti i campi
+      console.log('upsertUsers non disponibile, provo updateUsers con tutti i campi')
+      await userModuleService.updateUsers([{
+        id: adminUser.id,
+        email: adminUser.email,
+        password_hash: hashedPassword
+      }] as any)
+    }
 
     // Verifica che sia stata salvata recuperando l'utente aggiornato
     const updatedUser = await userModuleService.retrieveUser(adminUser.id)
