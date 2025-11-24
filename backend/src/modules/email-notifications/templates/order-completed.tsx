@@ -27,9 +27,14 @@ const formatPrice = (amount: number | string | undefined | null, currency: strin
     numAmount = 0
   } else if (typeof amount === 'string') {
     numAmount = parseFloat(amount)
-  } else if (typeof amount === 'object' && amount !== null && 'toNumber' in amount) {
-    // Handle BigNumber
-    numAmount = (amount as any).toNumber()
+  } else if (typeof amount === 'object') {
+    // Handle BigNumber - check if it has toNumber method
+    const amountObj = amount as any
+    if (typeof amountObj.toNumber === 'function') {
+      numAmount = amountObj.toNumber()
+    } else {
+      numAmount = 0
+    }
   } else {
     numAmount = amount
   }
