@@ -39,8 +39,8 @@ export default async function orderCompletedHandler({
       template: EmailTemplates.ORDER_COMPLETED,
       data: {
         emailOptions: {
-          replyTo: 'info@example.com',
-          subject: `Il tuo ordine #${order.display_id || order.id} è stato consegnato`
+          replyTo: 'bareuropa.ecommerce@gmail.com',
+          subject: `Il tuo ordine #${order.display_id || order.id} è stato consegnato - Bar Europa Trani`
         },
         order,
         shippingAddress,

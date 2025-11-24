@@ -68,8 +68,8 @@ export default async function orderShippedHandler({
       template: EmailTemplates.ORDER_SHIPPED,
       data: {
         emailOptions: {
-          replyTo: 'info@example.com',
-          subject: `Il tuo ordine #${order.display_id || order.id} è stato spedito`
+          replyTo: 'bareuropa.ecommerce@gmail.com',
+          subject: `Il tuo ordine #${order.display_id || order.id} è stato spedito - Bar Europa Trani`
         },
         order,
         shippingAddress,

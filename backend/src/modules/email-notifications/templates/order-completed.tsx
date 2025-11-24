@@ -38,10 +38,12 @@ const formatPrice = (amount: number | string | undefined | null, currency: strin
   } else {
     numAmount = amount
   }
-  return new Intl.NumberFormat('it-IT', {
+  // I prezzi arrivano già in centesimi divisi per 10, quindi dividiamo per 10 invece che per 100
+  // Formato en-US per avere € prima del prezzo
+  return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: currency.toUpperCase(),
-  }).format(numAmount / 100)
+  }).format(numAmount / 10)
 }
 
 export const OrderCompletedTemplate: React.FC<OrderCompletedTemplateProps> & {
@@ -261,7 +263,7 @@ export const OrderCompletedTemplate: React.FC<OrderCompletedTemplateProps> & {
           margin: '0',
           lineHeight: '20px'
         }}>
-          Grazie per aver scelto il nostro negozio e speriamo di rivederti presto! 🛍️
+          Grazie per aver scelto Bar Europa Trani e speriamo di rivederti presto! 🛍️
         </Text>
       </Section>
     </Base>

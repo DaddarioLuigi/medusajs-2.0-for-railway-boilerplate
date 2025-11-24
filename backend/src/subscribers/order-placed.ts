@@ -39,8 +39,8 @@ export default async function orderPlacedHandler({
       template: EmailTemplates.ORDER_PLACED,
       data: {
         emailOptions: {
-          replyTo: 'info@example.com',
-          subject: 'Your order has been placed'
+          replyTo: 'bareuropa.ecommerce@gmail.com',
+          subject: 'Ordine confermato - Bar Europa Trani'
         },
         order,
         shippingAddress,

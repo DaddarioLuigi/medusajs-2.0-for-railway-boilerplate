@@ -254,7 +254,7 @@ export const OrderShippedTemplate: React.FC<OrderShippedTemplateProps> & {
           margin: '0',
           lineHeight: '20px'
         }}>
-          Hai domande? Rispondi a questa email o contattaci tramite il nostro sito web.
+          Hai domande? Rispondi a questa email o contattaci tramite il nostro sito web. Grazie per aver scelto Bar Europa Trani!
         </Text>
       </Section>
     </Base>
