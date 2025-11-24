@@ -14,8 +14,13 @@ import * as bcrypt from 'bcrypt'
  * 
  * NOTA: Questo endpoint è temporaneo e dovrebbe essere rimosso dopo l'uso.
  */
+interface FixPasswordBody {
+  password?: string
+  secret?: string
+}
+
 export async function POST(
-  req: MedusaRequest,
+  req: MedusaRequest<FixPasswordBody>,
   res: MedusaResponse
 ): Promise<void> {
   try {
