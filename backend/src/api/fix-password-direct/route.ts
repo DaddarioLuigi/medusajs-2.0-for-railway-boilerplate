@@ -58,61 +58,40 @@ export async function POST(
     const saltRounds = 10
     const hashedPassword = await bcrypt.hash(password, saltRounds)
     
-    // Prova a usare il database manager direttamente
+    // Prova a usare updateUsers con tutti i campi insieme
+    // Includiamo anche altri campi per assicurarci che l'update venga processato
     try {
-      // Accedi al database manager tramite il container
-      const dbManager = req.scope.resolve('manager')
+      await userModuleService.updateUsers([{
+        id: adminUser.id,
+        email: adminUser.email,
+        password_hash: hashedPassword,
+        updated_at: new Date()
+      }] as any)
+
+      // Aspetta un momento e verifica
+      await new Promise(resolve => setTimeout(resolve, 500))
       
-      // Esegui query SQL diretta per aggiornare la password
-      await dbManager.query(
-        `UPDATE "user" SET "password_hash" = $1, "updated_at" = NOW() WHERE "id" = $2`,
-        [hashedPassword, adminUser.id]
-      )
-
-      // Verifica che sia stata salvata
-      const result = await dbManager.query(
-        `SELECT "id", "email", "password_hash" IS NOT NULL as has_password FROM "user" WHERE "id" = $1`,
-        [adminUser.id]
-      )
-
-      const passwordWasSaved = result[0]?.has_password || false
+      // Recupera l'utente aggiornato per verificare
+      const updatedUser = await userModuleService.retrieveUser(adminUser.id)
+      const updatedUserAny = updatedUser as any
+      const passwordWasSaved = !!updatedUserAny.password_hash
 
       res.json({
         success: true,
-        message: `Password aggiornata direttamente nel database per l'utente ${adminUser.email}`,
+        message: `Password aggiornata per l'utente ${adminUser.email}`,
         email: adminUser.email,
         user_id: adminUser.id,
         password_saved: passwordWasSaved,
-        method: 'direct_sql_update'
+        method: 'updateUsers',
+        note: passwordWasSaved 
+          ? 'Password hash salvata correttamente!' 
+          : 'Password hash potrebbe non essere esposta per sicurezza. Prova a fare il login.'
       })
-    } catch (dbError) {
-      // Se il database manager non è disponibile, prova un altro approccio
-      console.error('Errore con database manager:', dbError)
-      
-      // Prova a usare updateUsers con tutti i campi possibili
-      try {
-        await userModuleService.updateUsers([{
-          id: adminUser.id,
-          email: adminUser.email,
-          password_hash: hashedPassword
-        }] as any)
-
-        res.json({
-          success: true,
-          message: `Password aggiornata (metodo alternativo) per l'utente ${adminUser.email}`,
-          email: adminUser.email,
-          user_id: adminUser.id,
-          password_saved: 'unknown',
-          method: 'updateUsers_fallback',
-          note: 'Verifica manualmente se la password è stata salvata'
-        })
-      } catch (fallbackError) {
-        res.status(500).json({
-          error: 'Errore durante l\'aggiornamento della password',
-          message: fallbackError instanceof Error ? fallbackError.message : 'Errore sconosciuto',
-          db_error: dbError instanceof Error ? dbError.message : 'Errore database sconosciuto'
-        })
-      }
+    } catch (updateError) {
+      res.status(500).json({
+        error: 'Errore durante l\'aggiornamento della password',
+        message: updateError instanceof Error ? updateError.message : 'Errore sconosciuto'
+      })
     }
   } catch (error) {
     res.status(500).json({
