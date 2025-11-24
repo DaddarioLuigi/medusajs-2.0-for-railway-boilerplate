@@ -3,21 +3,22 @@ import * as React from 'react'
 import { Base } from './base'
 import { OrderDTO, OrderAddressDTO } from '@medusajs/framework/types'
 
-export const ORDER_PLACED = 'order-placed'
+export const ORDER_COMPLETED = 'order-completed'
 
-interface OrderPlacedPreviewProps {
+interface OrderCompletedPreviewProps {
   order: OrderDTO & { display_id: string; summary: { raw_current_order_total: { value: number } } }
   shippingAddress: OrderAddressDTO
 }
 
-export interface OrderPlacedTemplateProps {
+export interface OrderCompletedTemplateProps {
   order: OrderDTO & { display_id?: string; summary?: { raw_current_order_total?: { value: number } } }
   shippingAddress: OrderAddressDTO | null
   preview?: string
   orderUrl?: string
+  reviewUrl?: string
 }
 
-export const isOrderPlacedTemplateData = (data: any): data is OrderPlacedTemplateProps =>
+export const isOrderCompletedTemplateData = (data: any): data is OrderCompletedTemplateProps =>
   typeof data.order === 'object'
 
 const formatPrice = (amount: number | string | undefined, currency: string) => {
@@ -28,9 +29,9 @@ const formatPrice = (amount: number | string | undefined, currency: string) => {
   }).format(numAmount / 100)
 }
 
-export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
-  PreviewProps: OrderPlacedPreviewProps
-} = ({ order, shippingAddress, preview = 'Your order has been placed!', orderUrl }) => {
+export const OrderCompletedTemplate: React.FC<OrderCompletedTemplateProps> & {
+  PreviewProps: OrderCompletedPreviewProps
+} = ({ order, shippingAddress, preview = 'Your order has been delivered!', orderUrl, reviewUrl }) => {
   const orderTotal = order.summary?.raw_current_order_total?.value || order.total || 0
   const formattedTotal = formatPrice(orderTotal, order.currency_code || 'EUR')
 
@@ -45,14 +46,14 @@ export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
             color: '#1a1a1a',
             margin: '0 0 10px'
           }}>
-            ✅ Ordine Confermato
+            🎉 Ordine Consegnato
           </Text>
           <Text style={{ 
             fontSize: '16px', 
             color: '#666',
             margin: '0'
           }}>
-            Grazie per il tuo acquisto!
+            Speriamo che tu sia soddisfatto del tuo acquisto!
           </Text>
         </Section>
 
@@ -74,7 +75,8 @@ export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
           margin: '0 0 30px',
           lineHeight: '24px'
         }}>
-          Il tuo ordine è stato ricevuto e confermato. Ti invieremo un'email di aggiornamento quando l'ordine verrà spedito.
+          Il tuo ordine <strong>#{order.display_id || order.id}</strong> è stato consegnato con successo! 
+          Speriamo che tu sia soddisfatto dei prodotti ricevuti.
         </Text>
 
         {/* Order Summary Card */}
@@ -160,138 +162,53 @@ export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
           </Section>
         </Section>
 
-        {/* Shipping Address */}
-        {shippingAddress && (
-          <>
+        {/* Review CTA */}
+        {reviewUrl && (
+          <Section style={{ 
+            backgroundColor: '#fff3cd',
+            border: '1px solid #ffc107',
+            borderRadius: '8px',
+            padding: '20px',
+            marginBottom: '30px',
+            textAlign: 'center'
+          }}>
             <Text style={{ 
               fontSize: '18px', 
               fontWeight: 'bold', 
               color: '#1a1a1a',
-              margin: '0 0 15px'
+              margin: '0 0 10px'
             }}>
-              Indirizzo di Spedizione
+              💬 Lascia una Recensione
             </Text>
-            <Section style={{ 
-              backgroundColor: '#ffffff',
-              border: '1px solid #dee2e6',
-              borderRadius: '8px',
-              padding: '15px',
-              marginBottom: '30px'
+            <Text style={{ 
+              fontSize: '14px',
+              color: '#666',
+              margin: '0 0 15px',
+              lineHeight: '20px'
             }}>
-              <Text style={{ 
-                fontSize: '15px',
+              La tua opinione è importante per noi! Condividi la tua esperienza e aiuta altri clienti a scegliere.
+            </Text>
+            <Button
+              href={reviewUrl}
+              style={{
+                backgroundColor: '#ffc107',
                 color: '#1a1a1a',
-                margin: '0 0 5px',
-                lineHeight: '22px'
-              }}>
-                {shippingAddress.first_name} {shippingAddress.last_name}
-              </Text>
-              <Text style={{ 
-                fontSize: '15px',
-                color: '#1a1a1a',
-                margin: '0 0 5px',
-                lineHeight: '22px'
-              }}>
-                {shippingAddress.address_1}
-              </Text>
-              {shippingAddress.address_2 && (
-                <Text style={{ 
-                  fontSize: '15px',
-                  color: '#1a1a1a',
-                  margin: '0 0 5px',
-                  lineHeight: '22px'
-                }}>
-                  {shippingAddress.address_2}
-                </Text>
-              )}
-              <Text style={{ 
-                fontSize: '15px',
-                color: '#1a1a1a',
-                margin: '0 0 5px',
-                lineHeight: '22px'
-              }}>
-                {shippingAddress.postal_code} {shippingAddress.city}
-                {shippingAddress.province ? `, ${shippingAddress.province}` : ''}
-              </Text>
-              <Text style={{ 
-                fontSize: '15px',
-                color: '#1a1a1a',
-                margin: '0',
-                lineHeight: '22px'
-              }}>
-                {shippingAddress.country_code}
-              </Text>
-            </Section>
-          </>
+                padding: '12px 24px',
+                borderRadius: '6px',
+                textDecoration: 'none',
+                display: 'inline-block',
+                fontWeight: 'bold',
+                fontSize: '16px'
+              }}
+            >
+              Scrivi una Recensione
+            </Button>
+          </Section>
         )}
 
-        {/* Order Items */}
-        <Text style={{ 
-          fontSize: '18px', 
-          fontWeight: 'bold', 
-          color: '#1a1a1a',
-          margin: '0 0 15px'
-        }}>
-          Articoli Ordinati
-        </Text>
-
-        <Section style={{
-          border: '1px solid #dee2e6',
-          borderRadius: '8px',
-          overflow: 'hidden',
-          marginBottom: '30px'
-        }}>
-          {order.items.map((item, index) => (
-            <Section key={item.id} style={{
-              backgroundColor: index % 2 === 0 ? '#ffffff' : '#f8f9fa',
-              padding: '15px',
-              borderBottom: index < order.items.length - 1 ? '1px solid #dee2e6' : 'none'
-            }}>
-              <Text style={{ 
-                fontSize: '16px',
-                fontWeight: 'bold',
-                color: '#1a1a1a',
-                margin: '0 0 5px'
-              }}>
-                {item.title}
-              </Text>
-              {item.product_title && item.product_title !== item.title && (
-                <Text style={{ 
-                  fontSize: '14px',
-                  color: '#666',
-                  margin: '0 0 10px'
-                }}>
-                  {item.product_title}
-                </Text>
-              )}
-              <Section style={{ 
-                display: 'flex', 
-                justifyContent: 'space-between',
-                marginTop: '10px'
-              }}>
-                <Text style={{ 
-                  fontSize: '14px',
-                  color: '#666',
-                  margin: '0'
-                }}>
-                  Quantità: {item.quantity}
-                </Text>
-                <Text style={{ 
-                  fontSize: '16px',
-                  fontWeight: 'bold',
-                  color: '#1a1a1a',
-                  margin: '0'
-                }}>
-                  {formatPrice(item.unit_price, order.currency_code || 'EUR')}
-                </Text>
-              </Section>
-            </Section>
-          ))}
-        </Section>
-
-        {/* CTA Button */}
-        {orderUrl && (
-          <Section style={{ textAlign: 'center', marginTop: '30px' }}>
+        {/* CTA Buttons */}
+        <Section style={{ textAlign: 'center', marginTop: '30px' }}>
+          {orderUrl && (
             <Button
               href={orderUrl}
               style={{
@@ -302,13 +219,14 @@ export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
                 textDecoration: 'none',
                 display: 'inline-block',
                 fontWeight: 'bold',
-                fontSize: '16px'
+                fontSize: '16px',
+                marginRight: '10px'
               }}
             >
               Visualizza Ordine
             </Button>
-          </Section>
-        )}
+          )}
+        </Section>
 
         {/* Footer */}
         <Hr style={{ margin: '30px 0', borderColor: '#dee2e6' }} />
@@ -319,7 +237,7 @@ export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
           margin: '0 0 10px',
           lineHeight: '20px'
         }}>
-          Hai domande sul tuo ordine? Rispondi a questa email o contattaci tramite il nostro sito web.
+          Se hai domande o problemi con il tuo ordine, non esitare a contattarci. Siamo qui per aiutarti!
         </Text>
         
         <Text style={{ 
@@ -328,34 +246,22 @@ export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
           margin: '0',
           lineHeight: '20px'
         }}>
-          Grazie ancora per aver scelto il nostro negozio!
+          Grazie per aver scelto il nostro negozio e speriamo di rivederti presto! 🛍️
         </Text>
       </Section>
     </Base>
   )
 }
 
-OrderPlacedTemplate.PreviewProps = {
+OrderCompletedTemplate.PreviewProps = {
   order: {
     id: 'test-order-id',
     display_id: 'ORD-123',
     created_at: new Date().toISOString(),
     email: 'test@example.com',
-    currency_code: 'USD',
-    items: [
-      { id: 'item-1', title: 'Item 1', product_title: 'Product 1', quantity: 2, unit_price: 10 },
-      { id: 'item-2', title: 'Item 2', product_title: 'Product 2', quantity: 1, unit_price: 25 }
-    ],
-    shipping_address: {
-      first_name: 'Test',
-      last_name: 'User',
-      address_1: '123 Main St',
-      city: 'Anytown',
-      province: 'CA',
-      postal_code: '12345',
-      country_code: 'US'
-    },
-    summary: { raw_current_order_total: { value: 45 } }
+    currency_code: 'EUR',
+    total: 4500,
+    summary: { raw_current_order_total: { value: 4500 } }
   },
   shippingAddress: {
     first_name: 'Test',
@@ -364,8 +270,9 @@ OrderPlacedTemplate.PreviewProps = {
     city: 'Anytown',
     province: 'CA',
     postal_code: '12345',
-    country_code: 'US'
+    country_code: 'IT'
   }
-} as OrderPlacedPreviewProps
+} as OrderCompletedPreviewProps
 
-export default OrderPlacedTemplate
+export default OrderCompletedTemplate
+
