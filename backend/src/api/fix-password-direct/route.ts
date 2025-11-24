@@ -2,18 +2,15 @@ import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { Modules } from "@medusajs/framework/utils"
 import { IUserModuleService } from "@medusajs/framework/types"
 import * as bcrypt from 'bcrypt'
-import { Pool } from 'pg'
 
 /**
- * Endpoint per aggiornare la password direttamente nel database PostgreSQL
+ * Endpoint per aggiornare la password direttamente nel database usando query SQL
  * 
  * POST /fix-password-direct
  * Body: { 
  *   "password": "nuova-password",
  *   "secret": "chiave-segreta"
  * }
- * 
- * NOTA: Questo endpoint aggiorna direttamente nel database PostgreSQL
  */
 interface FixPasswordDirectBody {
   password?: string
@@ -61,74 +58,61 @@ export async function POST(
     const saltRounds = 10
     const hashedPassword = await bcrypt.hash(password, saltRounds)
     
-    // Prova ad aggiornare direttamente nel database PostgreSQL
-    const databaseUrl = process.env.DATABASE_URL
-    if (!databaseUrl) {
-      res.status(500).json({
-        error: 'DATABASE_URL non configurato'
-      })
-      return
-    }
-
+    // Prova a usare il database manager direttamente
     try {
-      // Connetti al database
-      const pool = new Pool({
-        connectionString: databaseUrl,
+      // Accedi al database manager tramite il container
+      const dbManager = req.scope.resolve('manager')
+      
+      // Esegui query SQL diretta per aggiornare la password
+      await dbManager.query(
+        `UPDATE "user" SET "password_hash" = $1, "updated_at" = NOW() WHERE "id" = $2`,
+        [hashedPassword, adminUser.id]
+      )
+
+      // Verifica che sia stata salvata
+      const result = await dbManager.query(
+        `SELECT "id", "email", "password_hash" IS NOT NULL as has_password FROM "user" WHERE "id" = $1`,
+        [adminUser.id]
+      )
+
+      const passwordWasSaved = result[0]?.has_password || false
+
+      res.json({
+        success: true,
+        message: `Password aggiornata direttamente nel database per l'utente ${adminUser.email}`,
+        email: adminUser.email,
+        user_id: adminUser.id,
+        password_saved: passwordWasSaved,
+        method: 'direct_sql_update'
       })
-
-      // Aggiorna direttamente nel database
-      // La tabella degli utenti in Medusa 2.0 si chiama probabilmente "user" o simile
-      // Prova diverse possibili tabelle
-      const possibleTables = ['user', 'users', 'medusa_user']
-      
-      let updated = false
-      let lastError: Error | null = null
-      
-      for (const table of possibleTables) {
-        try {
-          // Prova a trovare la colonna corretta
-          const result = await pool.query(`
-            UPDATE ${table} 
-            SET password_hash = $1, updated_at = NOW()
-            WHERE id = $2
-            RETURNING id, email
-          `, [hashedPassword, adminUser.id])
-          
-          if (result.rowCount && result.rowCount > 0) {
-            updated = true
-            await pool.end()
-            
-            res.json({
-              success: true,
-              message: `Password aggiornata direttamente nel database per l'utente ${adminUser.email}`,
-              email: adminUser.email,
-              table_used: table,
-              password_hash_preview: hashedPassword.substring(0, 30) + '...'
-            })
-            return
-          }
-        } catch (tableError) {
-          lastError = tableError instanceof Error ? tableError : new Error(String(tableError))
-          // Continua con la prossima tabella
-        }
-      }
-
-      await pool.end()
-
-      if (!updated) {
-        res.status(500).json({
-          error: 'Impossibile trovare la tabella degli utenti nel database',
-          attempted_tables: possibleTables,
-          last_error: lastError?.message
-        })
-        return
-      }
     } catch (dbError) {
-      res.status(500).json({
-        error: 'Errore durante l\'aggiornamento nel database',
-        message: dbError instanceof Error ? dbError.message : 'Errore sconosciuto'
-      })
-      return
+      // Se il database manager non è disponibile, prova un altro approccio
+      console.error('Errore con database manager:', dbError)
+      
+      // Prova a usare updateUsers con tutti i campi possibili
+      try {
+        await userModuleService.updateUsers([{
+          id: adminUser.id,
+          email: adminUser.email,
+          password_hash: hashedPassword
+        }] as any)
+
+        res.json({
+          success: true,
+          message: `Password aggiornata (metodo alternativo) per l'utente ${adminUser.email}`,
+          email: adminUser.email,
+          user_id: adminUser.id,
+          password_saved: 'unknown',
+          method: 'updateUsers_fallback',
+          note: 'Verifica manualmente se la password è stata salvata'
+        })
+      } catch (fallbackError) {
+        res.status(500).json({
+          error: 'Errore durante l\'aggiornamento della password',
+          message: fallbackError instanceof Error ? fallbackError.message : 'Errore sconosciuto',
+          db_error: dbError instanceof Error ? dbError.message : 'Errore database sconosciuto'
+        })
+      }
     }
   } catch (error) {
     res.status(500).json({
@@ -137,4 +121,3 @@ export async function POST(
     })
   }
 }
-
