@@ -49,10 +49,10 @@ export default async function updateAdminEmailAndPassword({ container, args }: E
     logger.info(`Aggiornamento password...`)
 
     // Aggiorna l'email
-    await userModuleService.updateUsers({
+    await userModuleService.updateUsers([{
       id: adminUser.id,
       email: newEmail
-    })
+    }] as any)
 
     // Aggiorna la password
     // In Medusa 2.0, proviamo diversi metodi per aggiornare la password
@@ -63,10 +63,10 @@ export default async function updateAdminEmailAndPassword({ container, args }: E
         logger.info('Password aggiornata usando setPassword')
       } else {
         // Metodo 2: updateUsers con password_hash (il servizio dovrebbe hasharla)
-        await userModuleService.updateUsers({
+        await userModuleService.updateUsers([{
           id: adminUser.id,
           password_hash: newPassword
-        } as any)
+        }] as any)
         logger.info('Password aggiornata usando updateUsers')
       }
     } catch (passwordError) {

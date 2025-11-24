@@ -62,10 +62,10 @@ export async function POST(
     const oldEmail = adminUser.email
 
     // Aggiorna l'email
-    await userModuleService.updateUsers({
+    await userModuleService.updateUsers([{
       id: adminUser.id,
       email: email
-    })
+    }] as any)
 
     // Se è fornita una password, aggiorna anche quella
     // In Medusa 2.0, dobbiamo usare il metodo setPassword che gestisce l'hashing
@@ -75,10 +75,10 @@ export async function POST(
         await (userModuleService as any).setPassword(adminUser.id, password)
       } else {
         // Fallback: prova a passare la password direttamente (il servizio dovrebbe hasharla)
-        await userModuleService.updateUsers({
+        await userModuleService.updateUsers([{
           id: adminUser.id,
           password_hash: password
-        } as any)
+        }] as any)
       }
     }
 

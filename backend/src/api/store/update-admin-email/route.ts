@@ -69,10 +69,10 @@ export async function POST(
     const oldEmail = adminUser.email
 
     // Aggiorna l'email
-    await userModuleService.updateUsers({
+    await userModuleService.updateUsers([{
       id: adminUser.id,
       email: email
-    })
+    }] as any)
 
     // Aggiorna la password
     // In Medusa 2.0, proviamo diversi metodi per aggiornare la password
@@ -82,10 +82,10 @@ export async function POST(
         await (userModuleService as any).setPassword(adminUser.id, password)
       } else {
         // Metodo 2: updateUsers con password_hash (il servizio dovrebbe hasharla)
-        await userModuleService.updateUsers({
+        await userModuleService.updateUsers([{
           id: adminUser.id,
           password_hash: password
-        } as any)
+        }] as any)
       }
     } catch (passwordError) {
       console.error('Errore durante l\'aggiornamento della password:', passwordError)
