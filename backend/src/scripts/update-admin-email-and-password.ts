@@ -1,6 +1,7 @@
 import { ExecArgs } from "@medusajs/framework/types"
 import { Modules } from "@medusajs/framework/utils"
 import { IUserModuleService } from "@medusajs/framework/types"
+import * as bcrypt from 'bcrypt'
 
 /**
  * Script per aggiornare l'email e la password dell'utente admin
@@ -55,24 +56,23 @@ export default async function updateAdminEmailAndPassword({ container, args }: E
     }] as any)
 
     // Aggiorna la password
-    // In Medusa 2.0, proviamo diversi metodi per aggiornare la password
+    // In Medusa 2.0, dobbiamo hashare la password con bcrypt prima di salvarla
     try {
-      // Metodo 1: setPassword se disponibile
-      if (typeof (userModuleService as any).setPassword === 'function') {
-        await (userModuleService as any).setPassword(adminUser.id, newPassword)
-        logger.info('Password aggiornata usando setPassword')
-      } else {
-        // Metodo 2: updateUsers con password_hash (il servizio dovrebbe hasharla)
-        await userModuleService.updateUsers([{
-          id: adminUser.id,
-          password_hash: newPassword
-        }] as any)
-        logger.info('Password aggiornata usando updateUsers')
-      }
+      // Hasha la password con bcrypt (10 rounds è il default sicuro)
+      const saltRounds = 10
+      const hashedPassword = await bcrypt.hash(newPassword, saltRounds)
+      
+      // Aggiorna la password hashata
+      await userModuleService.updateUsers([{
+        id: adminUser.id,
+        password_hash: hashedPassword
+      }] as any)
+      
+      logger.info('Password hashata e aggiornata con successo')
     } catch (passwordError) {
-      logger.warn('Errore durante l\'aggiornamento della password: ' + (passwordError instanceof Error ? passwordError.message : String(passwordError)))
-      logger.warn('L\'email è stata aggiornata, ma la password potrebbe non essere stata cambiata.')
-      logger.warn('Potresti dover resettare la password manualmente tramite il pannello admin.')
+      logger.error('Errore durante l\'aggiornamento della password: ' + (passwordError instanceof Error ? passwordError.message : String(passwordError)))
+      logger.error('L\'email è stata aggiornata, ma la password NON è stata cambiata.')
+      throw passwordError
     }
 
     logger.info(`Email admin aggiornata con successo da ${adminUser.email} a ${newEmail}`)

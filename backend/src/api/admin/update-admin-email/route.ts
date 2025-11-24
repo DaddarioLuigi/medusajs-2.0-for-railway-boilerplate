@@ -1,6 +1,7 @@
 import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { Modules } from "@medusajs/framework/utils"
 import { IUserModuleService } from "@medusajs/framework/types"
+import * as bcrypt from 'bcrypt'
 
 /**
  * Endpoint API per aggiornare l'email e/o la password dell'utente admin
@@ -68,17 +69,21 @@ export async function POST(
     }] as any)
 
     // Se è fornita una password, aggiorna anche quella
-    // In Medusa 2.0, dobbiamo usare il metodo setPassword che gestisce l'hashing
+    // In Medusa 2.0, dobbiamo hashare la password con bcrypt prima di salvarla
     if (password && typeof password === 'string' && password.length > 0) {
-      // Il metodo setPassword hasha automaticamente la password
-      if (typeof (userModuleService as any).setPassword === 'function') {
-        await (userModuleService as any).setPassword(adminUser.id, password)
-      } else {
-        // Fallback: prova a passare la password direttamente (il servizio dovrebbe hasharla)
+      try {
+        // Hasha la password con bcrypt (10 rounds è il default sicuro)
+        const saltRounds = 10
+        const hashedPassword = await bcrypt.hash(password, saltRounds)
+        
+        // Aggiorna la password hashata
         await userModuleService.updateUsers([{
           id: adminUser.id,
-          password_hash: password
+          password_hash: hashedPassword
         }] as any)
+      } catch (passwordError) {
+        console.error('Errore durante l\'hashing della password:', passwordError)
+        throw new Error('Impossibile aggiornare la password')
       }
     }
 
