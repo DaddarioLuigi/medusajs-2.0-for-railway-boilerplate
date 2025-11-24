@@ -21,15 +21,17 @@ export interface OrderCompletedTemplateProps {
 export const isOrderCompletedTemplateData = (data: any): data is OrderCompletedTemplateProps =>
   typeof data.order === 'object'
 
-const formatPrice = (amount: number | string | undefined, currency: string) => {
+const formatPrice = (amount: number | string | undefined | null, currency: string) => {
   let numAmount: number
-  if (typeof amount === 'string') {
+  if (amount === null || amount === undefined) {
+    numAmount = 0
+  } else if (typeof amount === 'string') {
     numAmount = parseFloat(amount)
-  } else if (typeof amount === 'object' && amount !== null && 'toNumber' in amount) {
+  } else if (typeof amount === 'object' && 'toNumber' in amount) {
     // Handle BigNumber
     numAmount = (amount as any).toNumber()
   } else {
-    numAmount = amount || 0
+    numAmount = amount
   }
   return new Intl.NumberFormat('it-IT', {
     style: 'currency',
