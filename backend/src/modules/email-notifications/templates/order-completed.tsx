@@ -22,7 +22,15 @@ export const isOrderCompletedTemplateData = (data: any): data is OrderCompletedT
   typeof data.order === 'object'
 
 const formatPrice = (amount: number | string | undefined, currency: string) => {
-  const numAmount = typeof amount === 'string' ? parseFloat(amount) : (amount || 0)
+  let numAmount: number
+  if (typeof amount === 'string') {
+    numAmount = parseFloat(amount)
+  } else if (typeof amount === 'object' && amount !== null && 'toNumber' in amount) {
+    // Handle BigNumber
+    numAmount = (amount as any).toNumber()
+  } else {
+    numAmount = amount || 0
+  }
   return new Intl.NumberFormat('it-IT', {
     style: 'currency',
     currency: currency.toUpperCase(),
@@ -33,7 +41,7 @@ export const OrderCompletedTemplate: React.FC<OrderCompletedTemplateProps> & {
   PreviewProps: OrderCompletedPreviewProps
 } = ({ order, shippingAddress, preview = 'Your order has been delivered!', orderUrl, reviewUrl }) => {
   const orderTotal = order.summary?.raw_current_order_total?.value || order.total || 0
-  const formattedTotal = formatPrice(orderTotal, order.currency_code || 'EUR')
+  const formattedTotal = formatPrice(orderTotal as any, order.currency_code || 'EUR')
 
   return (
     <Base preview={preview}>

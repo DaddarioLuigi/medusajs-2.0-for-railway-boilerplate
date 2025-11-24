@@ -13,7 +13,7 @@ export default async function orderShippedHandler({
   
   try {
     const order = await orderModuleService.retrieveOrder(data.id, { 
-      relations: ['items', 'summary', 'shipping_address', 'fulfillments'] 
+      relations: ['items', 'summary', 'shipping_address'] 
     })
 
     if (!order.email) {
@@ -34,22 +34,32 @@ export default async function orderShippedHandler({
     }
 
     // Estrai informazioni di tracking dai fulfillments
+    // Nota: i fulfillments potrebbero non essere disponibili direttamente nell'OrderDTO
+    // In questo caso, potremmo dover recuperarli separatamente o passare i dati dall'evento
     let trackingNumber: string | undefined
     let carrier: string | undefined
     let trackingUrl: string | undefined
 
-    if (order.fulfillments && order.fulfillments.length > 0) {
-      const fulfillment = order.fulfillments[0]
+    // Prova a recuperare i fulfillments se disponibili nell'evento o nell'ordine
+    const orderWithFulfillments = order as any
+    if (orderWithFulfillments.fulfillments && Array.isArray(orderWithFulfillments.fulfillments) && orderWithFulfillments.fulfillments.length > 0) {
+      const fulfillment = orderWithFulfillments.fulfillments[0]
       // I tracking numbers potrebbero essere in diversi formati a seconda del provider
-      if ((fulfillment as any).tracking_numbers && (fulfillment as any).tracking_numbers.length > 0) {
-        trackingNumber = (fulfillment as any).tracking_numbers[0]
+      if (fulfillment.tracking_numbers && Array.isArray(fulfillment.tracking_numbers) && fulfillment.tracking_numbers.length > 0) {
+        trackingNumber = fulfillment.tracking_numbers[0]
       }
-      if ((fulfillment as any).tracking_links && (fulfillment as any).tracking_links.length > 0) {
-        trackingUrl = (fulfillment as any).tracking_links[0]
+      if (fulfillment.tracking_links && Array.isArray(fulfillment.tracking_links) && fulfillment.tracking_links.length > 0) {
+        trackingUrl = fulfillment.tracking_links[0]
       }
-      if ((fulfillment as any).provider) {
-        carrier = (fulfillment as any).provider
+      if (fulfillment.provider) {
+        carrier = fulfillment.provider
       }
+    }
+    
+    // Alternativa: i dati potrebbero arrivare direttamente dall'evento
+    if (data.fulfillment_id) {
+      // Se abbiamo un fulfillment_id, potremmo recuperarlo separatamente
+      // Per ora, lasciamo i valori undefined se non disponibili
     }
 
     await notificationModuleService.createNotifications({
