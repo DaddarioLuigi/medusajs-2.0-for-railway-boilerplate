@@ -62,15 +62,23 @@ export async function POST(
     const hashedPassword = await bcrypt.hash(password, saltRounds)
     
     // Aggiorna la password hashata
+    // Prova diversi modi per assicurarsi che venga salvata
     await userModuleService.updateUsers([{
       id: adminUser.id,
       password_hash: hashedPassword
     }] as any)
 
+    // Verifica che sia stata salvata recuperando l'utente aggiornato
+    const updatedUser = await userModuleService.retrieveUser(adminUser.id)
+    const updatedUserAny = updatedUser as any
+    const passwordWasSaved = !!updatedUserAny.password_hash
+
     res.json({
       success: true,
       message: `Password aggiornata correttamente per l'utente ${adminUser.email}`,
-      email: adminUser.email
+      email: adminUser.email,
+      password_saved: passwordWasSaved,
+      password_hash_preview: passwordWasSaved ? updatedUserAny.password_hash.substring(0, 30) + '...' : null
     })
   } catch (error) {
     res.status(500).json({
