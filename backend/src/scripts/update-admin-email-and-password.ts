@@ -49,7 +49,8 @@ export default async function updateAdminEmailAndPassword({ container, args }: E
     logger.info(`Aggiornamento password...`)
 
     // Aggiorna l'email
-    await userModuleService.updateUsers(adminUser.id, {
+    await userModuleService.updateUsers({
+      id: adminUser.id,
       email: newEmail
     })
 
@@ -62,13 +63,14 @@ export default async function updateAdminEmailAndPassword({ container, args }: E
         logger.info('Password aggiornata usando setPassword')
       } else {
         // Metodo 2: updateUsers con password_hash (il servizio dovrebbe hasharla)
-        await userModuleService.updateUsers(adminUser.id, {
+        await userModuleService.updateUsers({
+          id: adminUser.id,
           password_hash: newPassword
         } as any)
         logger.info('Password aggiornata usando updateUsers')
       }
     } catch (passwordError) {
-      logger.warn('Errore durante l\'aggiornamento della password:', passwordError)
+      logger.warn('Errore durante l\'aggiornamento della password: ' + (passwordError instanceof Error ? passwordError.message : String(passwordError)))
       logger.warn('L\'email è stata aggiornata, ma la password potrebbe non essere stata cambiata.')
       logger.warn('Potresti dover resettare la password manualmente tramite il pannello admin.')
     }

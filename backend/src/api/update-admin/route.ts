@@ -16,12 +16,18 @@ import { IUserModuleService } from "@medusajs/framework/types"
  * La chiave segreta è impostata nella variabile d'ambiente ADMIN_UPDATE_SECRET
  * o usa il default "temporary-secret-key-change-me"
  */
+interface UpdateAdminBody {
+  email?: string
+  password?: string
+  secret?: string
+}
+
 export async function POST(
-  req: MedusaRequest,
+  req: MedusaRequest<UpdateAdminBody>,
   res: MedusaResponse
 ): Promise<void> {
   try {
-    const { email, password, secret } = req.body
+    const { email, password, secret } = req.body || {}
 
     // Verifica la chiave segreta
     const requiredSecret = process.env.ADMIN_UPDATE_SECRET || "temporary-secret-key-change-me"
@@ -64,7 +70,8 @@ export async function POST(
     const oldEmail = adminUser.email
 
     // Aggiorna l'email
-    await userModuleService.updateUsers(adminUser.id, {
+    await userModuleService.updateUsers({
+      id: adminUser.id,
       email: email
     })
 
@@ -76,7 +83,8 @@ export async function POST(
         await (userModuleService as any).setPassword(adminUser.id, password)
       } else {
         // Metodo 2: updateUsers con password_hash (il servizio dovrebbe hasharla)
-        await userModuleService.updateUsers(adminUser.id, {
+        await userModuleService.updateUsers({
+          id: adminUser.id,
           password_hash: password
         } as any)
       }

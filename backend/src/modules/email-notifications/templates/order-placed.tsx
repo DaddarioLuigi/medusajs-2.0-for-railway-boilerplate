@@ -49,7 +49,7 @@ export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
           Order Date: {new Date(order.created_at).toLocaleDateString()}
         </Text>
         <Text style={{ margin: '0 0 20px' }}>
-          Total: {order.summary?.raw_current_order_total?.value || order.total || 0} {order.currency_code}
+          Total: {String(order.summary?.raw_current_order_total?.value || order.total || 0)} {order.currency_code}
         </Text>
 
         {shippingAddress && (

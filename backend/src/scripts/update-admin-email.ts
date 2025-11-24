@@ -42,7 +42,8 @@ export default async function updateAdminEmail({ container, args }: ExecArgs) {
     logger.info(`Aggiornamento email a: ${newEmail}`)
 
     // Aggiorna l'email
-    await userModuleService.updateUsers(adminUser.id, {
+    await userModuleService.updateUsers({
+      id: adminUser.id,
       email: newEmail
     })
 

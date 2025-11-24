@@ -15,12 +15,18 @@ import { IUserModuleService } from "@medusajs/framework/types"
  * NOTA TEMPORANEA: Autenticazione disabilitata, richiede solo secret key
  * TODO: Riabilitare autenticazione dopo l'uso
  */
+interface UpdateAdminEmailBody {
+  email?: string
+  password?: string
+  secret?: string
+}
+
 export async function POST(
-  req: MedusaRequest,
+  req: MedusaRequest<UpdateAdminEmailBody>,
   res: MedusaResponse
 ): Promise<void> {
   try {
-    const { email, password, secret } = req.body
+    const { email, password, secret } = req.body || {}
 
     // Verifica la chiave segreta (temporanea, rimuovere dopo l'uso)
     const requiredSecret = process.env.ADMIN_UPDATE_SECRET || "temporary-secret-key-change-me"
@@ -56,7 +62,8 @@ export async function POST(
     const oldEmail = adminUser.email
 
     // Aggiorna l'email
-    await userModuleService.updateUsers(adminUser.id, {
+    await userModuleService.updateUsers({
+      id: adminUser.id,
       email: email
     })
 
@@ -68,7 +75,8 @@ export async function POST(
         await (userModuleService as any).setPassword(adminUser.id, password)
       } else {
         // Fallback: prova a passare la password direttamente (il servizio dovrebbe hasharla)
-        await userModuleService.updateUsers(adminUser.id, {
+        await userModuleService.updateUsers({
+          id: adminUser.id,
           password_hash: password
         } as any)
       }
