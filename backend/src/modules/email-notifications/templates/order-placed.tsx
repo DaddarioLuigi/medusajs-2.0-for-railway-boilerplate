@@ -37,6 +37,8 @@ const formatPrice = (amount: number | string | undefined | null, currency: strin
   } else {
     numAmount = amount
   }
+  // Debug: log per vedere il valore processato
+  console.log('[Email Template] formatPrice input:', amount, 'converted to:', numAmount, 'divided by 10:', numAmount / 10)
   // I prezzi sono memorizzati in decimi (es. 320 = 32.0 euro), quindi dividiamo per 10
   // Formato en-US per avere € prima del prezzo
   return new Intl.NumberFormat('en-US', {
@@ -49,6 +51,8 @@ export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
   PreviewProps: OrderPlacedPreviewProps
 } = ({ order, shippingAddress, preview = 'Your order has been placed!', orderUrl }) => {
   const orderTotal = order.summary?.raw_current_order_total?.value || order.total || 0
+  // Debug: log per vedere il valore grezzo
+  console.log('[Email Template] Order total raw value:', orderTotal, 'Type:', typeof orderTotal)
   const formattedTotal = formatPrice(orderTotal as any, order.currency_code || 'EUR')
 
   return (
