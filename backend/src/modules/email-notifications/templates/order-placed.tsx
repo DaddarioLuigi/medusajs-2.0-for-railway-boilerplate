@@ -37,12 +37,12 @@ const formatPrice = (amount: number | string | undefined | null, currency: strin
   } else {
     numAmount = amount
   }
-  // I prezzi arrivano già in centesimi ma divisi per 10, quindi moltiplichiamo per 10 e poi dividiamo per 100
+  // I prezzi sono memorizzati in decimi (es. 320 = 32.0 euro), quindi dividiamo per 10
   // Formato en-US per avere € prima del prezzo
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: currency.toUpperCase(),
-  }).format((numAmount * 10) / 100)
+  }).format(numAmount / 10)
 }
 
 export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
